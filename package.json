@@ -24,5 +24,8 @@
   "peerDependencies": {
     "nunjucks": "~3",
     "parcel-bundler": "~1"
+  },
+  "dependencies": {
+    "klaw-sync": "^3.0.2"
   }
 }
