@@ -3,3 +3,5 @@
 
 ## Installation
 `npm i parcel-plugin-nunjucks` or `yarn add parcel-plugin-nunjucks`
+
+Parcel will now compile nunjucks template files with an `.njk` extension.
