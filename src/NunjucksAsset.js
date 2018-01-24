@@ -15,11 +15,7 @@ class NunjucksAsset extends HTMLAsset {
   async getDependencies() {
     await super.getDependencies();
     // Walk nunjucks directory and add any templates to dependencies
-    const paths = klawSync(this.nunjucksDir, {
-      nodir: true,
-      noRecurseOnFailedFilter: true,
-      filter: d => !d.path.includes('node_modules'),
-    });
+    const paths = klawSync(this.nunjucksDir, { nodir: true });
     const filesList = paths.filter(p =>
       path.extname(p.path).toLowerCase() === '.njk');
     filesList.forEach(dep => {
