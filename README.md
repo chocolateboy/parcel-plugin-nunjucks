@@ -18,7 +18,7 @@ Finally, thank @devmattrick for creating this library. I just added some materia
 Parcel will now render nunjucks template files with an `.njk` extension.
 
 
-## Useage
+## Parcel Api Useage
 
 ```javascript
 
