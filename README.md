@@ -1,14 +1,14 @@
 # parcel-plugin-nunjucks
 [Parcel](https://parceljs.org/) plugin to compile [Nunjucks](https://mozilla.github.io/nunjucks/) templates.
 
->
->
-If you build your front end code through parcel API, this extension may be useful to you, and you can call some of the predefined variables or functions in the JS through the injection of the nunjucks. render or the nunjucks. renderString function context parameters.
 
-I hope it will help some people, at least I need it.
-Finally, thank @devmattrick for creating this library. I just added some material. 😀
 >
+>If you build your front end code through parcel API, this extension may be useful to you, and you can call some of the predefined variables or functions in the JS through the injection of the nunjucks. render or the nunjucks. renderString function context parameters.
+
+> I hope it will help some people, at least I need it.
+> Finally, thank @devmattrick for creating this library. I just added some material. 😀
 >
+
 
 
 
@@ -19,7 +19,7 @@ Parcel will now render nunjucks template files with an `.njk` extension.
 
 
 ## Useage
-
+### In Js
 ```javascript
 
     const options = {
@@ -47,6 +47,8 @@ Parcel will now render nunjucks template files with an `.njk` extension.
 
 ```
 
+
+### In Html
 ```html
 
 <!DOCTYPE html>
@@ -65,12 +67,41 @@ Parcel will now render nunjucks template files with an `.njk` extension.
     <meta name="keywords" content="smic lot"/>
     <meta name="format-detection" content="telphone=no, email=no"/>
     <meta name="author" content="yonggang, mail@zhaiyonggang.com"/>
-	<link rel="stylesheet" type="text/css" href="../css/main.css?version={{version}}" />
+    <link rel="stylesheet" type="text/css" href="../css/main.css?version={{version}}" />
 </head>
 <body class="{{bodyclass}}">
     {% block content %} {% endblock%}
     {% block foot %} {% endblock%}
     <script type="text/javascript" src="../js/{{mainjs}}.js?version={{version}}" async></script>
+</body>
+</html>
+
+```
+
+### Output
+```html
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge,chrome=1">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="renderer" content="webkit">
+    <meta name="description" content="SMIC dashboard management"/>
+    <meta name="keywords" content="smic lot"/>
+    <meta name="format-detection" content="telphone=no, email=no"/>
+    <meta name="author" content="yonggang, mail@zhaiyonggang.com"/>
+    <link rel="stylesheet" type="text/css" href="/assets/main.827c7c2c.css?version=1527135397030" />
+</head>
+<body class="{{bodyclass}}">
+    <div>hello world</div>
+    <script type="text/javascript" src="/assets/main.9d928ce8.js?version=1527135397030" async></script>
 </body>
 </html>
 
