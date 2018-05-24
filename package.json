@@ -1,6 +1,6 @@
 {
   "name": "parcel-plugin-nunjucks",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Parcel plugin to compile Nunjucks templates.",
   "main": "index.js",
   "scripts": {},

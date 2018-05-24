@@ -1,11 +1,15 @@
-const nunjucks = require('nunjucks');
-const path = require('path');
-const klawSync = require('klaw-sync');
-const HTMLAsset = require('parcel-bundler/src/assets/HTMLAsset');
+const nunjucks   = require('nunjucks');
+const path       = require('path');
+const klawSync   = require('klaw-sync');
+const HTMLAsset  = require('parcel-bundler/src/assets/HTMLAsset');
+const njkContext = {};
 
 class NunjucksAsset extends HTMLAsset {
   constructor(name, pkg, options) {
     super(name, pkg, options);
+
+    // add custom nunjucks context
+    if(options.njkContext) Object.assign(njkContext, options.njkContext);
 
     // Set nunjucks to resolve paths relative to current asset's path
     nunjucks.configure(path.dirname(name));
@@ -25,7 +29,7 @@ class NunjucksAsset extends HTMLAsset {
 
   parse(code) {
     // Parse Nunjucks into an HTML file and pass it on to the HTMLAsset
-    return super.parse(nunjucks.renderString(code));
+    return super.parse(nunjucks.renderString(code, njkContext));
   }
 }
 
