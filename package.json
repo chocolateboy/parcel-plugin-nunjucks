@@ -23,6 +23,7 @@
   "homepage": "https://github.com/devmattrick/parcel-plugin-nunjucks#readme",
   "peerDependencies": {
     "nunjucks": "~3",
+    "cosmiconfig": "^5.0.5",
     "parcel-bundler": "~1"
   },
   "dependencies": {
