@@ -15,7 +15,7 @@ class NunjucksAsset extends HTMLAsset {
 
     // load nunjucksrc file
     var pwd          = path.resolve('.') || process.cwd();
-    const explorer   = config('nunjucks', { rcExtensions: true })
+    const explorer   = config('nunjucks')
     explorer.load(pwd)
     .then(function(result){
        if(result.config && !result.isEmpty){
