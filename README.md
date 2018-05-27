@@ -70,8 +70,8 @@ Parcel will now render nunjucks template files with an `.njk` extension.
     <meta http-equiv="Cache-Control" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="renderer" content="webkit">
-    <meta name="description" content="SMIC dashboard management"/>
-    <meta name="keywords" content="smic lot"/>
+    <meta name="description" content="description"/>
+    <meta name="keywords" content="keywords"/>
     <meta name="format-detection" content="telphone=no, email=no"/>
     <meta name="author" content="yonggang, mail@zhaiyonggang.com"/>
     <link rel="stylesheet" type="text/css" href="../css/main.css?version={{version}}" />
@@ -100,8 +100,8 @@ Parcel will now render nunjucks template files with an `.njk` extension.
     <meta http-equiv="Cache-Control" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="renderer" content="webkit">
-    <meta name="description" content="SMIC dashboard management"/>
-    <meta name="keywords" content="smic lot"/>
+    <meta name="description" content="description"/>
+    <meta name="keywords" content="keywords"/>
     <meta name="format-detection" content="telphone=no, email=no"/>
     <meta name="author" content="yonggang, mail@zhaiyonggang.com"/>
     <link rel="stylesheet" type="text/css" href="/assets/main.827c7c2c.css?version=1527135397030" />
