@@ -1,6 +1,6 @@
 {
   "name": "parcel-plugin-nunjucks",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "Parcel plugin to compile Nunjucks templates.",
   "main": "index.js",
   "scripts": {},
@@ -26,6 +26,7 @@
     "parcel-bundler": "~1"
   },
   "dependencies": {
-    "klaw-sync": "^3.0.2"
+    "klaw-sync": "^3.0.2",
+    "cosmiconfig": "^5.0.5"
   }
 }
