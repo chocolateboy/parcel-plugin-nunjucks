@@ -1,31 +1,50 @@
+'use strict';
+
 const nunjucks = require('nunjucks');
-const path = require('path');
-const klawSync = require('klaw-sync');
-const HTMLAsset = require('parcel-bundler/src/assets/HTMLAsset');
+const HTMLAsset = require('parcel-bundler/lib/assets/HTMLAsset');
+const { parseFile } = require('nunjucks-parser');
+
+const CONFIG_FILE = [
+  ['.nunjucksrc', '.nunjucks.js', 'nunjucks.config.js'],
+  { packageKey: 'nunjucks' }
+];
+
+// if a config setting is lazy (i.e. a function), force its value by calling it
+// with the supplied parameters
+function force(value, ...args) {
+  return (typeof value === 'function') ? value.apply(this, args) : value;
+}
 
 class NunjucksAsset extends HTMLAsset {
-  constructor(name, pkg, options) {
-    super(name, pkg, options);
+  async load() {
+    const config = (await this.getConfig.apply(this, CONFIG_FILE)) || {};
+    const templateDirs = config.root || this.options.rootDir;
+    const templatePath = this.name;
 
-    // Set nunjucks to resolve paths relative to current asset's path
-    nunjucks.configure(path.dirname(name));
-    this.nunjucksDir = path.dirname(name);
-  }
+    const env = force(config.env, templatePath) || nunjucks.configure(
+      templateDirs,
+      config.options || {}
+    );
 
-  async getDependencies() {
-    await super.getDependencies();
-    // Walk nunjucks directory and add any templates to dependencies
-    const paths = klawSync(this.nunjucksDir, { nodir: true });
-    const filesList = paths.filter(p =>
-      path.extname(p.path).toLowerCase() === '.njk');
-    filesList.forEach(dep => {
-      this.addDependency(dep.path, { includedInParent: true });
-    });
-  }
+    if (config.filters && !config.env) {
+      for (const [name, fn] of Object.entries(config.filters)) {
+        env.addFilter(name, fn);
+      }
+    }
 
-  parse(code) {
-    // Parse Nunjucks into an HTML file and pass it on to the HTMLAsset
-    return super.parse(nunjucks.renderString(code));
+    const data = force(config.data, templatePath) || {};
+    const { content, dependencies } = await parseFile(env, templatePath, { data });
+
+    for (const dependency of dependencies) {
+      if (dependency.parent) { // exclude self
+        this.addDependency(dependency.path, {
+          resolved: dependency.path,
+          includedInParent: true,
+        });
+      }
+    }
+
+    return content;
   }
 }
 

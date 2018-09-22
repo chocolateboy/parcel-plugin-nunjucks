@@ -4,28 +4,37 @@
   "description": "Parcel plugin to compile Nunjucks templates.",
   "main": "index.js",
   "scripts": {},
+  "files": [
+      "index.js",
+      "src/NunjucksAsset.js"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devmattrick/parcel-plugin-nunjucks.git"
   },
   "keywords": [
-    "parcel",
-    "plugin",
-    "nunjucks",
     "asset",
-    "build"
+    "build",
+    "nunjucks",
+    "parcel",
+    "parcel-plugin",
+    "plugin",
+    "template"
   ],
   "author": "Matthew McCune <git@mattrick.me>",
   "license": "MIT",
+  "engines": {
+    "node": ">= 7.6"
+  },
   "bugs": {
     "url": "https://github.com/devmattrick/parcel-plugin-nunjucks/issues"
   },
   "homepage": "https://github.com/devmattrick/parcel-plugin-nunjucks#readme",
-  "peerDependencies": {
-    "nunjucks": "~3",
-    "parcel-bundler": "~1"
-  },
   "dependencies": {
-    "klaw-sync": "^3.0.2"
+    "nunjucks-parser": "^0.0.3"
+  },
+  "peerDependencies": {
+    "nunjucks": "^3.0.0",
+    "parcel-bundler": "^1.0.0"
   }
 }
