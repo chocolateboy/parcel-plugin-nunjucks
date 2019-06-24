@@ -12,7 +12,7 @@ const CONFIG_FILE = [
 // if a config setting is lazy (i.e. a function), force its value by calling it
 // with the supplied parameters
 async function force(value, ...args) {
-  return (typeof value === 'function') ? await value.apply(this, args) : value;
+  return (typeof value === 'function') ? (await value.apply(this, args)) : value;
 }
 
 class NunjucksAsset extends HTMLAsset {
@@ -21,7 +21,7 @@ class NunjucksAsset extends HTMLAsset {
     const templateDirs = config.root || this.options.rootDir;
     const templatePath = this.name;
 
-    const env = force(config.env, templatePath) || nunjucks.configure(
+    const env = (await force(config.env, templatePath)) || nunjucks.configure(
       templateDirs,
       config.options || {}
     );
@@ -32,7 +32,7 @@ class NunjucksAsset extends HTMLAsset {
       }
     }
 
-    const data = await force(config.data, templatePath) || {};
+    const data = (await force(config.data, templatePath)) || {};
     const { content, dependencies } = await parseFile(env, templatePath, { data });
 
     for (const dependency of dependencies) {
