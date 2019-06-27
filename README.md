@@ -66,17 +66,18 @@ $ parcel build src/html/index.njk
 
 This is a Parcel plugin which uses nunjucks to translate templates with an `.njk` extension into HTML assets.
 
-As with HTML assets, nunjucks templates can be top-level entries, or dependencies referenced from other documents or templates.
+As with HTML assets, nunjucks templates can be top-level [entries](#root), or dependencies referenced from
+other documents or templates.
 
 # CONFIGURATION
 
 An [environment](https://mozilla.github.io/nunjucks/api.html#environment) for each (or every) nunjucks template
-known to Parcel can be configured by creating a `nunjucks` entry in the project's package.json file,
+known to Parcel can be configured by creating a `nunjucks` entry in the project's `package.json` file,
 or by exporting a configuration object from one of the following files:
 
-- nunjucks.config.js
-- .nunjucks.js
-- .nunjucksrc
+- `nunjucks.config.js`
+- `.nunjucks.js`
+- `.nunjucksrc`
 
 The configuration object has the following type:
 
@@ -109,10 +110,10 @@ The [Environment](https://mozilla.github.io/nunjucks/api.html#environment) insta
 in which case it is called with the absolute path/URI of the template being processed and its return value is used as the environment.
 
 ```javascript
-const nunjucks = require('nunjucks')
-const env = nunjucks.configure('./src/html')
+const nunjucks = require("nunjucks")
+const env = nunjucks.configure("./src/html")
 
-env.addFilter('uc', value => value.toUpperCase())
+env.addFilter("uc", value => value.toUpperCase())
 
 module.exports = { env }
 ```
@@ -150,6 +151,40 @@ Ignored if the `env` option is supplied.
 module.exports = { root: "./src/html" }
 ```
 
+Note that nunjucks only resolves files in the specified/default template directories,
+and dies with a misleading error about the file not existing if an attempt is made to
+access a template outside these directories. This applies to nested template dependencies,
+but also to top-level entry files i.e. this won't work:
+
+```
+$ cat nunjucks.config.js
+```
+
+```javascript
+module.exports = {
+    root: "./src/html",
+}
+```
+
+```
+$ parcel ./index.html.njk
+# error: ./index.html.njk: template not found: ./index.html.njk
+```
+
+The solution is to add the parent directories of entry files that
+are nunjucks templates to the list of template directories e.g.:
+
+```javascript
+module.exports = {
+    root: ["./src/html", "."],
+}
+```
+
+```
+$ parcel ./index.html.njk
+# OK
+```
+
 # COMPATIBILITY
 
 * Node.js >= v7.6.0
@@ -162,7 +197,7 @@ module.exports = { root: "./src/html" }
 
 # VERSION
 
-1.0.0
+1.1.0
 
 # AUTHOR
 
@@ -170,7 +205,7 @@ module.exports = { root: "./src/html" }
 
 # COPYRIGHT AND LICENSE
 
-Copyright © 2017-2018 by Matthew McCune.
+Copyright © 2017-2019 by Matthew McCune.
 
 This is free software; you can redistribute it and/or modify it under the
 terms of the [MIT license](https://opensource.org/licenses/MIT).
