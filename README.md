@@ -103,9 +103,9 @@ interface NunjucksConfiguration {
 
 Options that are defined as functions ([`assetType`](#assettype),
 [`data`](#data), and [`env`](#env)) are passed an object containing the parsed
-components of the template's path (including the path itself) as a parameter
-e.g. if the path is `/foo/bar/baz.html.njk`, the parameter would contain the
-following fields:
+components of the template's absolute path (including the path itself) as a
+parameter e.g. if the path is `/foo/bar/baz.html.njk`, the parameter would
+contain the following fields:
 
 ```javascript
 {
@@ -183,7 +183,7 @@ the latter to be output as e.g. `foo.html`, `bar.js`, `baz.css` etc. rather
 than `foo.html.html`, `bar.js.js`, `baz.css.css` etc.
 
 ```javascript
-// if there's no base extension, base the asset type on the name of the
+// if there's no base extension, infer the asset type from the name of the
 // containing directory e.g.:
 //
 //   - foo.html.njk    → html
@@ -193,7 +193,7 @@ than `foo.html.html`, `bar.js.js`, `baz.css.css` etc.
 //   - src/css/bar.njk → css
 //
 module.exports = {
-    assetType({ baseExt, dirname }) {
+    assetType ({ baseExt, dirname }) {
         return baseExt || dirname
     }
 }
@@ -271,12 +271,11 @@ module.exports = {
 
 The base template directory or directories. Can be a single path (string) or
 multiple paths (array of strings). If not supplied, it defaults to the current
-directory (`.`).
+directory (`.`). Ignored if the `env` option is supplied.
 
 Relative paths are resolved against the directory of the configuration file in
 which the paths are defined (or the `package.json` if defined there), falling
 back to the current working directory if a configuration file isn't found.
-Ignored if the `env` option is supplied.
 
 ```javascript
 module.exports = { root: './src/html' }
