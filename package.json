@@ -1,40 +1,58 @@
 {
-  "name": "parcel-plugin-nunjucks",
-  "version": "1.1.0",
-  "description": "Parcel support for nunjucks templates",
-  "main": "index.js",
-  "scripts": {},
-  "files": [
-    "index.js",
-    "src/NunjucksAsset.js"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/devmattrick/parcel-plugin-nunjucks.git"
-  },
-  "keywords": [
-    "asset",
-    "build",
-    "nunjucks",
-    "parcel",
-    "parcel-plugin",
-    "plugin",
-    "template"
-  ],
-  "author": "Matthew McCune <git@mattrick.me>",
-  "license": "MIT",
-  "engines": {
-    "node": ">= 7.6"
-  },
-  "bugs": {
-    "url": "https://github.com/devmattrick/parcel-plugin-nunjucks/issues"
-  },
-  "homepage": "https://github.com/devmattrick/parcel-plugin-nunjucks#readme",
-  "dependencies": {
-    "nunjucks-parser": "^1.0.1"
-  },
-  "peerDependencies": {
-    "nunjucks": "^3.0.0",
-    "parcel-bundler": "^1.0.0"
-  }
+    "name": "parcel-plugin-nunjucks",
+    "version": "1.1.0",
+    "description": "Parcel support for nunjucks templates",
+    "author": "Matthew McCune <git@mattrick.me>",
+    "contributors": "chocolateboy <chocolate@cpan.org>",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "module": "dist/index.esm.js",
+    "repository": "https://github.com/devmattrick/parcel-plugin-nunjucks",
+    "scripts": {
+        "build": "bili --map --format cjs --format esm src/*.js",
+        "clean": "shx rm -rf dist .*cache*/ test/tests/*/dist",
+        "prepublishOnly": "run-s test",
+        "rebuild": "run-s clean build",
+        "test": "run-s rebuild test:run",
+        "test:run": "ava --verbose"
+    },
+    "files": [
+        "dist/"
+    ],
+    "ava": {
+        "files": [
+            "test/tests/*/test.js"
+        ]
+    },
+    "dependencies": {
+        "core-js": "^3.1.4",
+        "nunjucks-parser": "^1.0.2"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.5.4",
+        "@babel/preset-env": "^7.5.4",
+        "ava": "^2.2.0",
+        "babel-plugin-source-map-support": "^2.0.1",
+        "bili": "^4.8.0",
+        "npm-run-all": "^4.1.5",
+        "nunjucks": "^3.2.0",
+        "parcel-bundler": "^1.12.3",
+        "protochain": "^1.0.5",
+        "shx": "^0.3.2",
+        "source-map-support": "^0.5.12",
+        "traverse": "^0.6.6"
+    },
+    "peerDependencies": {
+        "nunjucks": "^3.0.0",
+        "parcel-bundler": "^1.12.0"
+    },
+    "keywords": [
+        "asset",
+        "build",
+        "nunjucks",
+        "parcel",
+        "parcel-plugin",
+        "plugin",
+        "template"
+    ]
 }
