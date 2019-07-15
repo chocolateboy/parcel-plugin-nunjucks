@@ -7,7 +7,7 @@
     "license": "MIT",
     "main": "dist/index.js",
     "module": "dist/index.esm.js",
-    "repository": "https://github.com/devmattrick/parcel-plugin-nunjucks",
+    "repository": "https://github.com/chocolateboy/parcel-plugin-nunjucks",
     "scripts": {
         "build": "bili --map --format cjs --format esm src/*.js",
         "clean": "shx rm -rf dist .*cache*/ test/tests/*/dist",
