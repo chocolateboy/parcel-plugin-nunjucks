@@ -172,6 +172,34 @@ for the respective filetypes e.g.:
 The type can be written with or without the leading dot e.g. `html` and `.html`
 are equivalent.
 
+By default, nunjucks assets are processed as the specified or inferred
+asset-type i.e. they're scanned and transformed in the same way as regular
+JavaScript/HTML etc. files. In some cases, it may be preferable to specify a
+file's target type/extension (e.g. HTML) without processing it as that type
+(e.g. with PostHTML). This can be done by supplying the `assetType` option as
+an object rather than its string shorthand, and setting its `raw` property to
+true, e.g.:
+
+```javascript
+module.exports = {
+    data: { ... },
+    assetType: { value: 'html', raw: true },
+}
+```
+
+The object has the following type:
+
+```typescript
+interface AssetType = {
+    value?: string | false;
+    raw?: boolean;
+}
+```
+
+If not supplied, the `raw` property defaults to false. The `value` property
+can be falsey (infer from the filename) or an asset-type (string), e.g. `html`
+or `.js`.
+
 Can be defined as a function, in which case it is called with an object
 containing the path of the template being processed (see
 [Path parameter](#path-parameter)), and its return value is used as the asset
