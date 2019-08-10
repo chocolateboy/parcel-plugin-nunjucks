@@ -1,3 +1,13 @@
+## 2.1.0 - 2019-08-10
+
+- add support for raw (unprocessed) assets (closes
+  [#25](https://github.com/chocolateboy/parcel-plugin-nunjucks/issues/25))
+
+    - allow the `assetType` option to be supplied as an object with a `raw`
+      property (default: false). If set to true, the specified type is used as
+      the file's extension and processing stops after the nunjucks template
+      processing.
+
 ## 2.0.0 - 2019-07-16
 
 - **Breaking Changes**

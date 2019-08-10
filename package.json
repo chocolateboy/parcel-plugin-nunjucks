@@ -1,9 +1,9 @@
 {
     "name": "parcel-plugin-nunjucks",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "Parcel support for nunjucks templates",
-    "author": "Matthew McCune <git@mattrick.me>",
-    "contributors": "chocolateboy <chocolate@cpan.org>",
+    "author": "chocolateboy <chocolate@cpan.org>",
+    "contributors": "Matthew McCune <git@mattrick.me>",
     "license": "MIT",
     "main": "dist/index.js",
     "module": "dist/index.esm.js",

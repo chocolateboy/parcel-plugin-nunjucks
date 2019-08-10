@@ -368,12 +368,12 @@ The following NPM scripts are available:
 
 # VERSION
 
-2.0.0
+2.1.0
 
 # AUTHORS
 
-- [Matthew McCune](mailto:matthew@matthew.cx)
 - [chocolateboy](mailto:chocolate@cpan.org)
+- [Matthew McCune](mailto:matthew@matthew.cx) (original version)
 
 # COPYRIGHT AND LICENSE
 
