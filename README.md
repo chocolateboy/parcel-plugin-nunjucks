@@ -10,9 +10,11 @@
 - [SYNOPSIS](#synopsis)
 - [DESCRIPTION](#description)
 - [CONFIGURATION](#configuration)
+  - [Type](#type)
   - [Path parameter](#path-parameter)
   - [Options](#options)
     - [assetType](#assettype)
+      - [Raw assets](#raw-assets)
     - [data](#data)
     - [env](#env)
     - [filters](#filters)
@@ -86,11 +88,18 @@ files:
 - `.nunjucks.js`
 - `nunjucks.config.js`
 
+## Type
+
 The configuration object has the following type:
 
 ```typescript
+interface AssetType {
+    value?: false | string;
+    raw?: boolean;
+}
+
 interface NunjucksConfiguration {
-    assetType?: string | ((path: Path) => string);
+    assetType?: false | string | AssetType | ((path: Path) => (false | string | AssetType));
     data?:      object | ((path: Path) => (object | PromiseLike<object>));
     env?:       Nunjucks.Environment | ((path: Path) => Nunjucks.Environment);
     filters?:   { [name: string]: Function };
@@ -104,7 +113,7 @@ interface NunjucksConfiguration {
 Options that are defined as functions ([`assetType`](#assettype),
 [`data`](#data), and [`env`](#env)) are passed an object containing the parsed
 components of the template's absolute path (including the path itself) as a
-parameter e.g. if the path is `/foo/bar/baz.html.njk`, the parameter would
+parameter, e.g. if the path is `/foo/bar/baz.html.njk`, the parameter would
 contain the following fields:
 
 ```javascript
@@ -129,13 +138,18 @@ The following options can be defined.
 ### assetType
 
 Override a template's type within Parcel. This allows the rendered template to
-be processed as a file of the specified type e.g. a HTML template will be
+be processed as a file of the specified type, e.g. a HTML template will be
 scanned for links to scripts, stylesheets etc., and a templated JavaScript file
 will be scanned for `require`s and `import`s etc.
 
+Defined as a falsey value (the default), a string, or an object, or can be
+defined as a function, in which case it is called with an object containing the
+path of the template being processed (see [Path parameter](#path-parameter)),
+and its return value is used as the asset type.
+
 By default, each template's type is determined by the extension before the
 `.njk` suffix, defaulting to HTML if there isn't one or if the extension isn't
-recognized e.g.:
+recognized, e.g.:
 
 | filename         | type       |
 |------------------|------------|
@@ -147,7 +161,7 @@ recognized e.g.:
 
 This behavior can be overridden by setting the `assetType` option. The default
 value is falsey, which enables the filename-matching behavior. Setting it to a
-string makes the value the type for all `.njk` files e.g. setting it to `html`
+string makes the value the type for all `.njk` files, e.g. setting it to `html`
 makes all files HTML regardless of the filename (which was the default in
 parcel-plugin-nunjucks v1):
 
@@ -159,8 +173,8 @@ module.exports = {
 ```
 
 The supported types are the extensions registered with Parcel, including those
-registered by plugins, and they usually correspond to the standard extensions
-for the respective filetypes e.g.:
+registered by plugins, and they typically correspond to the standard extensions
+for the respective filetypes, e.g.:
 
 | extension  | type       |
 | ---------- | ---------- |
@@ -169,41 +183,8 @@ for the respective filetypes e.g.:
 | js         | JavaScript |
 | ts         | TypeScript |
 
-The type can be written with or without the leading dot e.g. `html` and `.html`
+The type can be written with or without the leading dot, e.g. `html` and `.html`
 are equivalent.
-
-By default, nunjucks assets are processed as the specified or inferred
-asset-type i.e. they're scanned and transformed in the same way as regular
-JavaScript/HTML etc. files. In some cases, it may be preferable to specify a
-file's target type/extension (e.g. HTML) without processing it as that type
-(e.g. with PostHTML). This can be done by supplying the `assetType` option as
-an object rather than its string shorthand, and setting its `raw` property to
-true, e.g.:
-
-```javascript
-module.exports = {
-    data: { ... },
-    assetType: { value: 'html', raw: true },
-}
-```
-
-The object has the following type:
-
-```typescript
-interface AssetType = {
-    value?: string | false;
-    raw?: boolean;
-}
-```
-
-If not supplied, the `raw` property defaults to false. The `value` property
-can be falsey (infer from the filename) or an asset-type (string), e.g. `html`
-or `.js`.
-
-Can be defined as a function, in which case it is called with an object
-containing the path of the template being processed (see
-[Path parameter](#path-parameter)), and its return value is used as the asset
-type.
 
 As an example, the following configuration assigns the default type(s) to most
 files, but overrides the type for files in `src/js` and `src/css`. This allows
@@ -212,7 +193,7 @@ than `foo.html.html`, `bar.js.js`, `baz.css.css` etc.
 
 ```javascript
 // if there's no base extension, infer the asset type from the name of the
-// containing directory e.g.:
+// containing directory, e.g.:
 //
 //   - foo.html.njk    → html
 //   - bar.js.njk      → js
@@ -226,6 +207,27 @@ module.exports = {
     }
 }
 ```
+
+#### Raw assets
+
+By default, nunjucks assets are processed as the specified or inferred
+asset-type i.e. they're scanned and transformed in the same way as regular
+JavaScript/HTML etc. files. In some cases, it may be preferable to specify a
+rendered template's target type/extension (e.g. HTML) without processing it as
+that type (e.g. with PostHTML). This can be done by supplying the `assetType`
+option as an [object](#type) rather than a string, and setting
+its `raw` property to true, e.g.:
+
+```javascript
+module.exports = {
+    data: { ... },
+    assetType: { value: 'html', raw: true },
+}
+```
+
+If not supplied, the `raw` property defaults to false. As with the non-object
+shorthand, the `value` property can be falsey (infer the type from the
+filename) or a type name (string), e.g. `html` or `.js`.
 
 ### data
 
@@ -327,7 +329,7 @@ $ parcel ./index.html.njk
 ```
 
 The solution is to add the parent directories of entry files that are nunjucks
-templates to the list of template directories e.g.:
+templates to the list of template directories, e.g.:
 
 ```javascript
 module.exports = {
