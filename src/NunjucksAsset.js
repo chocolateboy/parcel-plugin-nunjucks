@@ -1,7 +1,7 @@
 import Nunjucks      from 'nunjucks'
 import { parseFile } from 'nunjucks-parser'
-import Asset         from 'parcel-bundler/lib/Asset'
-import syncPromise   from 'parcel-bundler/lib/utils/syncPromise'
+import Asset         from 'parcel-bundler/src/Asset'
+import syncPromise   from 'parcel-bundler/src/utils/syncPromise'
 import Path          from 'path'
 
 /*
@@ -22,6 +22,31 @@ const CONFIG_FILE = [
 ]
 
 /**
+ * A reference to the NunjucksAsset class (defined below), which serves two
+ * purposes:
+ *
+ * a) it's an instantiable class ([NunjucksAsset < Asset < Object]) which
+ * processes the nunjucks template and then halts any further processing. This
+ * is used for templated raw assets e.g. HTML templates we don't want to process
+ * with PostHTML.
+ *
+ * b) it's also used to construct instances of the dynamic subclasses which
+ * inherit from a more specific asset-type determined by the template's filename
+ * or +assetType+ option e.g. [NunjucksAsset < HTMLAsset < Asset < Object]
+ *
+ * In the first case, we return from the constructor in the usual way (i.e.
+ * implicitly return `this`). In the second case, we return the actual instance
+ * of the (dynamic) subclass.
+ *
+ * In both cases, the implementation of the +load+ method is the same, so we
+ * define it in the static class. Since we use the same class name for the
+ * dynamic NunjucksAsset subclasses and the static NunjucksAsset class, we need
+ * a way to refer to the latter from the body of the former (where the +load+
+ * method is referenced), so this variable holds a shared reference to it
+ */
+let NunjucksAssetClass
+
+/**
  * Given a superclass (e.g. HTMLAsset, JSONAsset), get the corresponding
  * subclass from the cache, creating it if it doesn't exist.
  */
@@ -34,7 +59,7 @@ function extend (baseClass) {
 
     class NunjucksAsset extends baseClass {}
 
-    NunjucksAsset.prototype.load = load
+    NunjucksAsset.prototype.load = NunjucksAssetClass.prototype.load
 
     CACHE.set(baseClass, NunjucksAsset)
 
@@ -95,81 +120,6 @@ function getConfigSync (asset) {
 }
 
 /**
- * Load the nunjucks template at the path supplied in `this.name` and return its
- * rendered contents (string). Configuration and data for the nunjucks instance
- * (Environment) is read from a config file, if available. If the template
- * depends on (i.e. loads) any nested templates, they are registered as
- * dependencies with Parcel.
- *
- * Although defined as a function, `load` is actually a method attached to each
- * Asset subclass we generate. However, it's the same implementation — the same
- * function — for each subclass so it's pulled out here rather than being
- * redefined each time we generate a subclass.
- *
- * Before:
- *
- *     function createSubclass (baseClass) {
- *         return class NunjucksAsset extends baseClass {
- *             // XXX a different `load` method is generated for each subclass
- *             async load () { ... }
- *         }
- *     }
- *
- * After:
- *
- *     async function load () { ... }
- *
- *     function createSubclass (baseClass) {
- *         const subclass = class NunjucksAsset extends baseClass {}
- *         // ✔ use the same load method for each subclass
- *         subclass.prototype.load = load
- *         return subclass
- *     }
- */
-async function load () {
-    const _config = await this.getConfig(...CONFIG_FILE)
-    const config = _config || {}
-    const parsedPath = parsePath(this.name)
-    const projectRootDir = process.cwd()
-
-    // calling this after `getConfig` ensures we a) get the cached package.json
-    // (if any) and b) avoid any side effects that haven't already been
-    // triggered by `getConfig`
-    const configPath = _config ? (await getConfigPath(this)) : null
-    const configDir = configPath ? Path.dirname(configPath) : null
-
-    const templateDirs = [].concat(config.root || '.').map(dir => {
-        // resolve root paths relative to the config-file path (if available)
-        return Path.resolve(configDir || projectRootDir, dir)
-    })
-
-    const env = force(config.env, parsedPath) || Nunjucks.configure(
-        templateDirs,
-        config.options || {}
-    )
-
-    if (config.filters && !config.env) {
-        for (const [name, fn] of Object.entries(config.filters)) {
-            env.addFilter(name, fn)
-        }
-    }
-
-    const data = (await force(config.data, parsedPath)) || {}
-    const { content, dependencies } = await parseFile(env, this.name, { data })
-
-    for (const dependency of dependencies) {
-        if (dependency.parent) { // exclude self
-            this.addDependency(dependency.path, {
-                resolved: dependency.path,
-                includedInParent: true,
-            })
-        }
-    }
-
-    return content
-}
-
-/**
  * Takes an asset path and returns an object containing components of its path
  * and base path (i.e. the path without the .njk extension). Passed as the
  * argument to lazy options (functions) e.g.:
@@ -209,40 +159,18 @@ function parsePath (path) {
 }
 
 /**
- * The constructor for nunjucks assets. Returns an instance of a generated class
- * which a) overrides Asset#load and b) extends the Asset class of the
- * template's base type, or HTMLAsset if the base type can't be inferred from
- * the filename.
+ * The NunjucksAsset class instantiates an instance of one of the following
+ * classes:
  *
- * Examples:
+ *     1) NunjucksAsset < Asset < Object
+ *     2) NunjucksAsset < XAsset < Asset < Object
  *
- *     foo.json.njk:
+ * - where XAsset is a specific asset-type e.g. HTMLAsset or JSONAsset.
  *
- *         // [ NunjucksAsset, JSONAsset, Asset, Object ]
- *         class NunjucksAsset extends JSONAsset {
- *             async load () { ... }
- *         }
- *
- *     bar.html.njk:
- *
- *         // [ NunjucksAsset, HTMLAsset, Asset, Object ]
- *         class NunjucksAsset extends HTMLAsset {
- *             async load () { ... }
- *         }
- *
- *     baz.njk:
- *
- *         // [ NunjucksAsset, HTMLAsset, Asset, Object ]
- *         class NunjucksAsset extends HTMLAsset {
- *             async load () { ... }
- *         }
+ * Note: while the classes differ, the class name is the same in both cases (see
+ * the notes on the NunjucksAssetClass variable for more details).
  */
-
-// XXX note: we extend Asset here so that we can use its facilities in the
-// constructor (i.e. Asset#getConfig), but the value returned by this
-// constructor is not [ NunjucksAsset, Asset, Object ] and the `this`
-// instance used in the constructor is discarded
-export default class NunjucksAsset extends Asset {
+class NunjucksAsset extends Asset {
     constructor (path, options) {
         super(path, options) // initialize so we can use `getConfig`
 
@@ -253,7 +181,29 @@ export default class NunjucksAsset extends Asset {
         // because this is synchronous, config.assetType can't be async, so we
         // don't await the result. (also, like config.env, there's no particular
         // reason it should be async)
-        const assetType = force(config.assetType, parsedPath)
+        let assetType = force(config.assetType, parsedPath)
+
+        if (assetType) {
+            if (typeof assetType !== 'object') {
+                const value = (assetType && assetType.startsWith('.'))
+                    ? assetType.slice(1)
+                    : assetType
+                assetType = { raw: false, value }
+            }
+
+            // raw: true: extending RawAsset doesn't work as it's implemented
+            // as a shortcut to the raw (unprocessed) file, and there's no (e.g.)
+            // PlainTextAsset we can extend, so we directly extend Asset instead.
+            // the inheritance chain for this is already statically defined for
+            // this class, so we're done and can just return (void)
+            if (assetType.raw === true) {
+                const type = assetType.value || (baseExt && baseExt.slice(1))
+                this.type = type || 'html' // used for the extension
+                return
+            } else {
+                assetType = assetType.value
+            }
+        }
 
         // XXX Parser#findParser should support an `ext` option rather than
         // forcing us to concoct a fake filename
@@ -272,4 +222,58 @@ export default class NunjucksAsset extends Asset {
 
         return new subclass(path, options)
     }
+
+    /**
+     * Load the nunjucks template at the path supplied in `this.name` and
+     * return its rendered contents (string). Configuration and data for the
+     * nunjucks instance (Environment) is read from a config file, if available.
+     * If the template depends on (i.e. loads) any nested templates, they are
+     * registered as dependencies with Parcel.
+     */
+    async load () {
+        const _config = await this.getConfig(...CONFIG_FILE)
+        const config = _config || {}
+        const parsedPath = parsePath(this.name)
+        const projectRootDir = process.cwd()
+
+        // calling this after `getConfig` ensures we a) get the cached package.json
+        // (if any) and b) avoid any side effects that haven't already been
+        // triggered by `getConfig`
+        const configPath = _config ? (await getConfigPath(this)) : null
+        const configDir = configPath ? Path.dirname(configPath) : null
+
+        const templateDirs = [].concat(config.root || '.').map(dir => {
+            // resolve root paths relative to the config-file path (if available)
+            return Path.resolve(configDir || projectRootDir, dir)
+        })
+
+        const env = force(config.env, parsedPath) || Nunjucks.configure(
+            templateDirs,
+            config.options || {}
+        )
+
+        if (config.filters && !config.env) {
+            for (const [name, fn] of Object.entries(config.filters)) {
+                env.addFilter(name, fn)
+            }
+        }
+
+        const data = (await force(config.data, parsedPath)) || {}
+        const { content, dependencies } = await parseFile(env, this.name, { data })
+
+        for (const dependency of dependencies) {
+            if (dependency.parent) { // exclude self
+                this.addDependency(dependency.path, {
+                    resolved: dependency.path,
+                    includedInParent: true,
+                })
+            }
+        }
+
+        return content
+    }
 }
+
+NunjucksAssetClass = NunjucksAsset
+
+export default NunjucksAsset
