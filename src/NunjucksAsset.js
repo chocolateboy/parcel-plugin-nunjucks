@@ -185,20 +185,19 @@ class NunjucksAsset extends Asset {
 
         if (assetType) {
             if (typeof assetType !== 'object') {
-                const value = (assetType && assetType.startsWith('.'))
-                    ? assetType.slice(1)
-                    : assetType
-                assetType = { raw: false, value }
+                assetType = { raw: false, value: assetType }
             }
 
-            // raw: true: extending RawAsset doesn't work as it's implemented
-            // as a shortcut to the raw (unprocessed) file, and there's no (e.g.)
-            // PlainTextAsset we can extend, so we directly extend Asset instead.
-            // the inheritance chain for this is already statically defined for
-            // this class, so we're done and can just return (void)
+            // raw: true: extending RawAsset doesn't work as they're implemented
+            // as symlink-like references to the path of the raw (unprocessed)
+            // file, and there's no (e.g.) PlainTextAsset we can extend, so we
+            // directly extend Asset instead. the inheritance chain for this is
+            // already statically defined for this class, so we're done and can
+            // just return (void)
             if (assetType.raw === true) {
-                const type = assetType.value || (baseExt && baseExt.slice(1))
-                this.type = type || 'html' // used for the extension
+                // assign this.type, which sets the output file's extension
+                const type = assetType.value || baseExt || 'html'
+                this.type = type.startsWith('.') ? type.slice(1) : type
                 return
             } else {
                 assetType = assetType.value
