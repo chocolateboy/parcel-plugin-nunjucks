@@ -370,7 +370,7 @@ The following NPM scripts are available:
 
 # VERSION
 
-2.1.0
+2.1.1
 
 # AUTHORS
 

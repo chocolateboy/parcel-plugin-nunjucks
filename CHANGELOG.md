@@ -1,12 +1,20 @@
+## 2.1.1 - 2019-08-11
+
+- correctly handle dotted types in config.assetType.value
+
+  - ensure dotted config.assetType.value (e.g. ".html") is processed the same
+    internally as undotted config.assetType.value (e.g. "html"), just as dotted
+    config.assetType is processed the same as undotted config.assetType
+
 ## 2.1.0 - 2019-08-10
 
 - add support for raw (unprocessed) assets (closes
   [#25](https://github.com/chocolateboy/parcel-plugin-nunjucks/issues/25))
 
-    - allow the `assetType` option to be supplied as an object with a `raw`
-      property (default: false). If set to true, the specified type is used as
-      the file's extension and processing stops after the nunjucks template
-      processing.
+  - allow the `assetType` option to be supplied as an object with a `raw`
+    property (default: false). If set to true, the specified type is used as
+    the file's extension and processing stops after the nunjucks template
+    processing.
 
 ## 2.0.0 - 2019-07-16
 
@@ -33,9 +41,9 @@
 
 - add support for an rcfile i.e. one of:
 
-    - `.nunjucksrs`
-    - `.nunjucks.js`
-    - `nunjucks.config.js`
+  - `.nunjucksrs`
+  - `.nunjucks.js`
+  - `nunjucks.config.js`
 
 - fix relative paths i.e. importing/extending `../../macros/util.html.njk`
   now works
