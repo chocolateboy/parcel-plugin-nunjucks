@@ -4,7 +4,7 @@ import Asset         from 'parcel-bundler/src/Asset'
 import syncPromise   from 'parcel-bundler/src/utils/syncPromise'
 import Path          from 'path'
 
-/*
+/**
  * A cache which associates a base Asset class (e.g. JSONAsset, HTMLAsset)
  * with its corresponding synthetic subclass.
  */
@@ -66,7 +66,7 @@ function extend (baseClass) {
     return NunjucksAsset
 }
 
-/*
+/**
  * Takes a possibly-lazy value and yields its result if it's a function (passing
  * through any supplied arguments), or the value itself otherwise.
  */
@@ -99,7 +99,7 @@ async function getConfigPath (asset) {
  * synchronous.
  */
 function getConfigSync (asset) {
-    // XXX promiseSync (which uses the deasync NPM module) may be removed in
+    // XXX syncPromise (which uses the deasync NPM module) may be removed in
     // Parcel v2 (although currently it's used in more places in the v2 codebase
     // than in Parcel v1), at which point we'll need to write a sync version
     // ourselves or use a library e.g.:
@@ -122,19 +122,22 @@ function getConfigSync (asset) {
 /**
  * Takes an asset path and returns an object containing components of its path
  * and base path (i.e. the path without the .njk extension). Passed as the
- * argument to lazy options (functions) e.g.:
+ * argument to lazy options (functions), e.g.:
  *
- *   // base the asset type on the name of the containing directory e.g.:
- *   //
- *   //   js/foo.njk     => js
- *   //   css/bar.njk    => css
- *   //   index.html.njk => html
- *   //
- *   module.exports = {
- *       assetType ({ baseExt, dirname }) {
- *           return baseExt || dirname
- *       }
- *   }
+ *     // if there's no base extension, infer the asset type from the name of
+ *     // the containing directory, e.g.:
+ *     //
+ *     //   - foo.html.njk    → html
+ *     //   - bar.js.njk      → js
+ *     //   - baz.css.njk     → css
+ *     //   - src/js/foo.njk  → js
+ *     //   - src/css/bar.njk → css
+ *
+ *     module.exports = {
+ *         assetType ({ baseExt, dirname }) {
+ *             return baseExt || dirname
+ *         }
+ *     }
  */
 function parsePath (path) {
     const parsed = Path.parse(path)

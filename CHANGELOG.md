@@ -3,8 +3,7 @@
 - correctly handle dotted types in config.assetType.value
 
   - ensure dotted config.assetType.value (e.g. ".html") is processed the same
-    internally as undotted config.assetType.value (e.g. "html"), just as dotted
-    config.assetType is processed the same as undotted config.assetType
+    internally as undotted config.assetType.value (e.g. "html")
 
 ## 2.1.0 - 2019-08-10
 
