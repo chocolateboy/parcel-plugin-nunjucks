@@ -1,7 +1,7 @@
+import cosmiconfig   from 'cosmiconfig'
 import Nunjucks      from 'nunjucks'
 import { parseFile } from 'nunjucks-parser'
 import Asset         from 'parcel-bundler/src/Asset'
-import syncPromise   from 'parcel-bundler/src/utils/syncPromise'
 import Path          from 'path'
 
 /**
@@ -99,24 +99,39 @@ async function getConfigPath (asset) {
  * synchronous.
  */
 function getConfigSync (asset) {
-    // XXX syncPromise (which uses the deasync NPM module) may be removed in
-    // Parcel v2 (although currently it's used in more places in the v2 codebase
-    // than in Parcel v1), at which point we'll need to write a sync version
-    // ourselves or use a library e.g.:
+    // Parcel doesn't provide a way to load an asset's config file synchronously
+    // [1], so we have to do it ourselves, using the same logic i.e. walk up
+    // from the asset's dir to the enclosing node_modules directory or the
+    // filesystem's root directory, whichever comes first
     //
-    //   - https://github.com/davidtheclark/cosmiconfig
-    //
-    // XXX for future reference, note that Parcel walks from the asset's
-    // directory up to the project root directory, so a replacement
-    // should do the same. (This is what allows custom configs to work in the
-    // test subdirectories.)
+    // [1] https://github.com/parcel-bundler/parcel/issues/3566
 
-    try {
-        return syncPromise(asset.getConfig(...CONFIG_FILE)) || {}
-    } catch (e) {
-        console.error(e)
-        process.exit(1)
-    }
+    const [filenames, options] = CONFIG_FILE
+    const path = asset.name
+
+    // FIXME this is what we want to use for stopDir to exactly match Parcel's
+    // behavior [1], but resolving the stopDir dynamically is not currently
+    // supported by cosmiconfig [2], and there's no hook to override its
+    // Explorer class, so for now we have to make do with stopping at the
+    // project root (i.e. the current working directory)
+    //
+    // [1] see src/Resolver.js#findPackage and src/utils/config.js#resolve
+    // [2] https://github.com/davidtheclark/cosmiconfig/issues/219
+
+    // const fsRoot = Path.parse(path).root
+    // const stopDir = dir => {
+    //     return (dir === fsRoot) || Path.basename(dir) === 'node_modules'
+    // }
+
+    const explorer = cosmiconfig(options.packageKey, {
+        searchPlaces: ['package.json'].concat(filenames),
+        stopDir: process.cwd(), // project root
+    })
+
+    const result = explorer.searchSync(path)
+    const config = result && result.config
+
+    return config || {}
 }
 
 /**
@@ -245,7 +260,9 @@ class NunjucksAsset extends Asset {
         const configDir = configPath ? Path.dirname(configPath) : null
 
         const templateDirs = [].concat(config.root || '.').map(dir => {
-            // resolve root paths relative to the config-file path (if available)
+            // resolve config.root paths relative to the config file (if
+            // available) or, failing that, the project root directory (the
+            // current working directory)
             return Path.resolve(configDir || projectRootDir, dir)
         })
 
