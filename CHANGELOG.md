@@ -1,3 +1,7 @@
+## 2.2.1 - TBD
+
+- bump dependencies
+
 ## 2.2.0 - 2019-10-29
 
 - fix hanging on Node >= v12.11.0 ([#28](https://github.com/chocolateboy/parcel-plugin-nunjucks/issues/28))

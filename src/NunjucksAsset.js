@@ -1,8 +1,8 @@
-import cosmiconfig   from 'cosmiconfig'
-import Nunjucks      from 'nunjucks'
-import { parseFile } from 'nunjucks-parser'
-import Asset         from 'parcel-bundler/src/Asset'
-import Path          from 'path'
+import { cosmiconfigSync } from 'cosmiconfig'
+import Nunjucks            from 'nunjucks'
+import { parseFile }       from 'nunjucks-parser'
+import Asset               from 'parcel-bundler/src/Asset'
+import Path                from 'path'
 
 /**
  * A cache which associates a base Asset class (e.g. JSONAsset, HTMLAsset)
@@ -123,12 +123,12 @@ function getConfigSync (asset) {
     //     return (dir === fsRoot) || Path.basename(dir) === 'node_modules'
     // }
 
-    const explorer = cosmiconfig(options.packageKey, {
+    const explorerSync = cosmiconfigSync(options.packageKey, {
         searchPlaces: ['package.json'].concat(filenames),
         stopDir: process.cwd(), // project root
     })
 
-    const result = explorer.searchSync(path)
+    const result = explorerSync.search(path)
     const config = result && result.config
 
     return config || {}

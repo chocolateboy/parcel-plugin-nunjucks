@@ -1,6 +1,6 @@
 # parcel-plugin-nunjucks
 
-[![Build Status](https://secure.travis-ci.org/chocolateboy/parcel-plugin-nunjucks.svg)](https://travis-ci.org/chocolateboy/parcel-plugin-nunjucks)
+[![Build Status](https://travis-ci.org/chocolateboy/parcel-plugin-nunjucks.svg)](https://travis-ci.org/chocolateboy/parcel-plugin-nunjucks)
 [![NPM Version](https://img.shields.io/npm/v/parcel-plugin-nunjucks.svg)](https://www.npmjs.org/package/parcel-plugin-nunjucks)
 
 <!-- toc -->
