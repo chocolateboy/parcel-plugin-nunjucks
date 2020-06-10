@@ -1,6 +1,6 @@
 {
     "name": "parcel-plugin-nunjucks",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "description": "Parcel support for nunjucks templates",
     "author": "chocolateboy <chocolate@cpan.org>",
     "contributors": "Matthew McCune <git@mattrick.me>",

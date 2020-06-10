@@ -370,7 +370,7 @@ The following NPM scripts are available:
 
 # VERSION
 
-2.2.0
+2.2.1
 
 # AUTHORS
 
@@ -379,7 +379,7 @@ The following NPM scripts are available:
 
 # COPYRIGHT AND LICENSE
 
-Copyright © 2017-2019 by Matthew McCune.
+Copyright © 2017-2020 by Matthew McCune.
 
 This is free software; you can redistribute it and/or modify it under the
 terms of the [MIT license](https://opensource.org/licenses/MIT).
