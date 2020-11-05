@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/chocolateboy/parcel-plugin-nunjucks.svg)](https://travis-ci.org/chocolateboy/parcel-plugin-nunjucks)
 [![NPM Version](https://img.shields.io/npm/v/parcel-plugin-nunjucks.svg)](https://www.npmjs.org/package/parcel-plugin-nunjucks)
 
-<!-- toc -->
+<!-- TOC -->
 
 - [NAME](#name)
 - [INSTALLATION](#installation)
@@ -18,17 +18,16 @@
     - [data](#data)
     - [env](#env)
     - [filters](#filters)
-    - [options](#options)
+    - [options](#options-1)
     - [root](#root)
 - [DEVELOPMENT](#development)
-  - [NPM Scripts](#npm-scripts)
 - [COMPATIBILITY](#compatibility)
 - [SEE ALSO](#see-also)
 - [VERSION](#version)
 - [AUTHORS](#authors)
 - [COPYRIGHT AND LICENSE](#copyright-and-license)
 
-<!-- tocstop -->
+<!-- TOC END -->
 
 # NAME
 
@@ -346,11 +345,13 @@ $ parcel ./index.html.njk
 
 <details>
 
+<!-- TOC:ignore -->
 ## NPM Scripts
 
 The following NPM scripts are available:
 
 - build - compile the code and save it to the `dist` directory
+- build:doc - generate the README's TOC (table of contents)
 - clean - remove the `dist` directory and other build artifacts
 - rebuild - clean the build artifacts and recompile the code
 - test - clean and rebuild and run the test suite

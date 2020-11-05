@@ -1,3 +1,7 @@
+## 2.2.3 - TBD
+
+- bump dependencies
+
 ## 2.2.2 - 2020-10-06
 
 - bump dependencies
