@@ -1,6 +1,6 @@
 # parcel-plugin-nunjucks
 
-[![Build Status](https://travis-ci.org/chocolateboy/parcel-plugin-nunjucks.svg)](https://travis-ci.org/chocolateboy/parcel-plugin-nunjucks)
+[![Build Status](https://github.com/chocolateboy/parcel-plugin-nunjucks/workflows/test/badge.svg)](https://github.com/chocolateboy/parcel-plugin-nunjucks/actions?query=workflow%3Atest)
 [![NPM Version](https://img.shields.io/npm/v/parcel-plugin-nunjucks.svg)](https://www.npmjs.org/package/parcel-plugin-nunjucks)
 
 <!-- TOC -->
