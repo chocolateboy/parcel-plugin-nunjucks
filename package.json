@@ -9,9 +9,9 @@
     "module": "dist/index.esm.js",
     "repository": "https://github.com/chocolateboy/parcel-plugin-nunjucks",
     "scripts": {
-        "build": "bili --map --format cjs src/*.js",
+        "build": "bili --map --format cjs src/index.js src/NunjucksAsset.js",
         "build:doc": "toc-md README.md",
-        "build:release": "cross-env NODE_ENV=production bili --no-map --format cjs,esm src/*.js",
+        "build:release": "cross-env NODE_ENV=production bili --no-map --format cjs,esm src/index.js src/NunjucksAsset.js",
         "clean": "shx rm -rf dist .*cache*/ test/tests/*/dist",
         "prepublishOnly": "run-s clean build:release build:doc test:run",
         "rebuild": "run-s clean build",
@@ -48,6 +48,7 @@
         "parcel-bundler": "^1.12.4",
         "protochain": "^1.0.5",
         "shx": "^0.3.3",
+        "slash": "^3.0.0",
         "source-map-support": "^0.5.19",
         "toc-md-alt": "^0.4.1",
         "traverse": "^0.6.6"

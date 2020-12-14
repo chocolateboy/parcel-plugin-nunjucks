@@ -1,4 +1,5 @@
 const Path       = require('path')
+const slash      = require('slash')
 const protochain = require('protochain')
 const traverse   = require('traverse')
 
@@ -11,6 +12,16 @@ const traverse   = require('traverse')
 // [1] https://github.com/tc39/proposal-object-from-entries
 require('core-js/modules/es.object.from-entries')
 
+// make the newlines in generated output consistent so the snapshots match on
+// Windows
+const normalizeNewlines = (acc, [key, value]) => {
+    if (typeof value === 'string') {
+        value = value.replace(/\r\n/g, '\n')
+    }
+
+    return acc[key] = value, acc
+}
+
 class BundleNormalizer {
     constructor ({ testDir, rootDir }) {
         this.assetId = 0
@@ -20,7 +31,7 @@ class BundleNormalizer {
         this.testDir = testDir || rootDir
     }
 
-    normalizeAsset (asset) {
+    _normalizeAsset (asset) {
         if (!asset) return asset
 
         let id = this.seen.get(asset)
@@ -37,13 +48,51 @@ class BundleNormalizer {
             $assetId: id,
             $ancestors: protochain(asset).map(it => it.constructor.name),
             type: asset.type,
-            name: this.relTest(asset.name),
+            name: this._testRelative(asset.name),
             basename: asset.basename,
-            rootDir: this.relPkg(asset.options.rootDir),
-            generated: asset.generated,
-            dependencies: this.normalizeDependencies(asset.dependencies),
-            entryFiles: asset.options.entryFiles.map(it => this.relTest(it)),
+            rootDir: this._packageRelative(asset.options.rootDir),
+            generated: this._normalizeGenerated(asset.generated),
+            dependencies: this._normalizeDependencies(asset.dependencies),
+            entryFiles: asset.options.entryFiles.map(it => this._testRelative(it)),
         }
+    }
+
+    _normalizeDependencies (dependencies) {
+        const entries = Array.from(dependencies.entries()).map(([_key, _value]) => {
+            const key = this._packageRelative(_key)
+            const value = { name: this._packageRelative(_value.name) }
+
+            // exclude the `loc` object (an instance of Position)
+            if ('dynamic' in _value) value.dynamic = _value.dynamic
+            if ('includedInParent' in _value) value.includedInParent = _value.includedInParent
+            if ('optional' in _value) value.optional = _value.optional
+            if ('parent' in _value) value.parent = this._packageRelative(_value.parent)
+            if ('resolved' in _value) value.resolved = this._packageRelative(_value.resolved)
+
+            return [key, value]
+        })
+
+        return Object.fromEntries(entries)
+    }
+
+    _normalizeGenerated (generated) {
+        return Object.entries(generated).reduce(normalizeNewlines, {})
+    }
+
+    _packageRelative (path) {
+        return path && slash(Path.relative(this.rootDir, path))
+    }
+
+    _scrubBundle (bundle) {
+        return traverse(bundle).forEach(function (value) {
+            if (this.key === 'env' || this.key === 'extensions') {
+                this.update({})
+            }
+        })
+    }
+
+    _testRelative (path) {
+        return path && slash(Path.relative(this.testDir, path))
     }
 
     normalizeBundle (bundle) {
@@ -62,46 +111,12 @@ class BundleNormalizer {
             $type: 'Bundle',
             $bundleId: id,
             type: bundle.type,
-            name: this.relTest(bundle.name),
-            entryAsset: this.normalizeAsset(bundle.entryAsset),
-            assets: Array.from(bundle.assets).map(it => this.normalizeAsset(it)),
+            name: this._testRelative(bundle.name),
+            entryAsset: this._normalizeAsset(bundle.entryAsset),
+            assets: Array.from(bundle.assets).map(it => this._normalizeAsset(it)),
             childBundles: Array.from(bundle.childBundles).map(it => this.normalizeBundle(it)),
             siblingBundles: Array.from(bundle.siblingBundles).map(it => this.normalizeBundle(it)),
         }
-    }
-
-    normalizeDependencies (dependencies) {
-        const entries = Array.from(dependencies.entries()).map(([_key, _value]) => {
-            const key = this.relPkg(_key)
-            const value = { name: this.relPkg(_value.name) }
-
-            // exclude the `loc` object (an instance of Position)
-            if ('dynamic' in _value) value.dynamic = _value.dynamic
-            if ('includedInParent' in _value) value.includedInParent = _value.includedInParent
-            if ('optional' in _value) value.optional = _value.optional
-            if ('parent' in _value) value.parent = this.relPkg(_value.parent)
-            if ('resolved' in _value) value.resolved = this.relPkg(_value.resolved)
-
-            return [key, value]
-        })
-
-        return Object.fromEntries(entries)
-    }
-
-    scrubBundle (bundle) {
-        return traverse(bundle).forEach(function (value) {
-            if (this.key === 'env' || this.key === 'extensions') {
-                this.update({})
-            }
-        })
-    }
-
-    relTest (path) {
-        return path && Path.relative(this.testDir, path)
-    }
-
-    relPkg (path, options = {}) {
-        return path && Path.relative(this.rootDir, path)
     }
 }
 
