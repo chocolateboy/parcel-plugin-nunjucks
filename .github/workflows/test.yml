@@ -29,7 +29,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: install
-        run: yarn install
+        run: yarn install --prefer-offline
 
       - name: test
         run: yarn test
