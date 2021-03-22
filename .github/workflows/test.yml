@@ -10,8 +10,21 @@ env:
   CI: true
 
 jobs:
+  skip-duplicate-runs:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@ea548f2a2a08c55dcb111418ca62181f7887e297
+        with:
+          concurrent_skipping: 'same_content'
+          paths_ignore: '["**/*.md"]'
+
   test:
-    name: "node v${{ matrix.node-version }} on ${{ matrix.os }}"
+    needs: skip-duplicate-runs
+    if: ${{ needs.skip-duplicate-runs.outputs.should_skip != 'true' }}
+    name: 'node v${{ matrix.node-version }} on ${{ matrix.os }}'
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -28,8 +41,20 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: get cache directory
+        id: get-yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)" # XXX don't single quote
+
+      - name: restore cache directory
+        id: restore-yarn-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.get-yarn-cache.outputs.dir }}
+          key: ${{ matrix.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ matrix.os }}-yarn-
+
       - name: install
-        run: yarn install --prefer-offline
+        run: yarn install --prefer-offline --frozen-lockfile
 
       - name: test
         run: yarn test
