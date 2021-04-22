@@ -1,0 +1,38 @@
+name: publish
+
+# conditions are ORed together, so we need to fail the branch match to only
+# trigger on tag changes
+on:
+  push:
+    branches:
+      - '!*'
+    tags:
+      - 'v*'
+
+env:
+  CI: true
+
+jobs:
+  publish:
+    name: 'Publish to NPM'
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: install
+        run: yarn install --prefer-offline
+
+      - name: test
+        run: yarn run prepublishOnly
+
+      - uses: JS-DevTools/npm-publish@0f451a94170d1699fd50710966d48fb26194d939
+        with:
+          access: public
+          token: ${{ secrets.NPM_TOKEN }}
